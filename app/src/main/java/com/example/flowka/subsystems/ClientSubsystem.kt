@@ -133,7 +133,7 @@ fun AddClientScreen(
         Button(
             onClick = {
                 viewModel.addClient(name, phoneNumber, note)
-                onClientAdded
+                onClientAdded()
             },
             modifier = Modifier.fillMaxWidth()
         ) {

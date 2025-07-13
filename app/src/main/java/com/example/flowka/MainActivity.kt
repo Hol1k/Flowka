@@ -32,7 +32,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import com.example.flowka.subsystems.ClientListScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.flowka.navigation.ClientNavGraph
 import com.example.flowka.subsystems.FinanceScreen
 import com.example.flowka.subsystems.MaterialsScreen
 import com.example.flowka.subsystems.ServicesScreen
@@ -151,7 +152,10 @@ class MainActivity : ComponentActivity() {
                         Box(modifier = Modifier.padding(innerPadding)) {
                             when (currentScreen) {
                                 "Услуги" -> ServicesScreen()
-                                "Клиенты" -> ClientListScreen()
+                                "Клиенты" -> {
+                                    val navController = rememberNavController()
+                                    ClientNavGraph(navController)
+                                }
                                 "Материалы" -> MaterialsScreen()
                                 "Инструменты" -> ToolsScreen()
                                 "Финансы" -> FinanceScreen()

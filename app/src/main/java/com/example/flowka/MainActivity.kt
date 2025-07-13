@@ -31,7 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.flowka.subsystems.ClientsScreen
+import androidx.compose.ui.graphics.RectangleShape
+import com.example.flowka.subsystems.ClientListScreen
 import com.example.flowka.subsystems.FinanceScreen
 import com.example.flowka.subsystems.MaterialsScreen
 import com.example.flowka.subsystems.ServicesScreen
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Услуги"
                                     )
                                 },
+                                shape = RectangleShape,
                                 label = { Text("Услуги") },
                                 selected = currentScreen == "Услуги",
                                 onClick = {
@@ -75,6 +77,7 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Клиенты"
                                     )
                                 },
+                                shape = RectangleShape,
                                 label = { Text("Клиенты") },
                                 selected = currentScreen == "Клиенты",
                                 onClick = {
@@ -89,6 +92,7 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Материалы"
                                     )
                                 },
+                                shape = RectangleShape,
                                 label = { Text("Материалы") },
                                 selected = currentScreen == "Материалы",
                                 onClick = {
@@ -103,6 +107,7 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Инструменты"
                                     )
                                 },
+                                shape = RectangleShape,
                                 label = { Text("Инструменты") },
                                 selected = currentScreen == "Инструменты",
                                 onClick = {
@@ -117,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Финансы"
                                     )
                                 },
+                                shape = RectangleShape,
                                 label = { Text("Финансы") },
                                 selected = currentScreen == "Финансы",
                                 onClick = {
@@ -145,7 +151,7 @@ class MainActivity : ComponentActivity() {
                         Box(modifier = Modifier.padding(innerPadding)) {
                             when (currentScreen) {
                                 "Услуги" -> ServicesScreen()
-                                "Клиенты" -> ClientsScreen()
+                                "Клиенты" -> ClientListScreen()
                                 "Материалы" -> MaterialsScreen()
                                 "Инструменты" -> ToolsScreen()
                                 "Финансы" -> FinanceScreen()

@@ -150,10 +150,11 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {
+                            val navController = rememberNavController()
+
                             when (currentScreen) {
                                 "Услуги" -> ServicesScreen()
                                 "Клиенты" -> {
-                                    val navController = rememberNavController()
                                     ClientNavGraph(navController)
                                 }
                                 "Материалы" -> MaterialsScreen()

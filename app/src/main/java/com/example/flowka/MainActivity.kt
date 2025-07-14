@@ -37,9 +37,9 @@ import com.example.flowka.di.networkModule
 import com.example.flowka.di.repositoryModule
 import com.example.flowka.di.viewModelModule
 import com.example.flowka.navigation.ClientNavGraph
+import com.example.flowka.navigation.ServiceNavGraph
 import com.example.flowka.subsystems.FinanceScreen
 import com.example.flowka.subsystems.MaterialsScreen
-import com.example.flowka.subsystems.ServicesScreen
 import com.example.flowka.subsystems.ToolsScreen
 import com.example.flowka.ui.theme.FlowkaTheme
 import kotlinx.coroutines.launch
@@ -164,7 +164,9 @@ class MainActivity : ComponentActivity() {
                             val navController = rememberNavController()
 
                             when (currentScreen) {
-                                "Услуги" -> ServicesScreen()
+                                "Услуги" -> {
+                                    ServiceNavGraph(navController)
+                                }
                                 "Клиенты" -> {
                                     ClientNavGraph(navController)
                                 }

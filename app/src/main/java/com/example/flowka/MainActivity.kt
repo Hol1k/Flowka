@@ -33,6 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.navigation.compose.rememberNavController
+import com.example.flowka.di.networkModule
+import com.example.flowka.di.repositoryModule
+import com.example.flowka.di.viewModelModule
 import com.example.flowka.navigation.ClientNavGraph
 import com.example.flowka.subsystems.FinanceScreen
 import com.example.flowka.subsystems.MaterialsScreen
@@ -40,12 +43,20 @@ import com.example.flowka.subsystems.ServicesScreen
 import com.example.flowka.subsystems.ToolsScreen
 import com.example.flowka.ui.theme.FlowkaTheme
 import kotlinx.coroutines.launch
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        startKoin {
+            androidContext(this@MainActivity)
+            modules(networkModule, repositoryModule, viewModelModule)
+        }
+
         setContent {
             FlowkaTheme {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

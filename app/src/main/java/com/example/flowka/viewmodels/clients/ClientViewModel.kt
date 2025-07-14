@@ -4,23 +4,35 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flowka.models.Client
 import com.example.flowka.repositories.client.ClientRepository
-import com.example.flowka.repositories.client.FakeClientRepository
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ClientViewModel : ViewModel() {
-    private val repository: ClientRepository = FakeClientRepository()
+class ClientViewModel(
+    private val repository: ClientRepository
+) : ViewModel() {
 
-    val clients: StateFlow<List<Client>> = repository.getClients()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _clients = MutableStateFlow<List<Client>>(emptyList())
+    val clients: StateFlow<List<Client>> = _clients
+
+    init {
+        loadClients()
+    }
 
     fun addClient(name: String, phone: String, note: String){
         viewModelScope.launch {
             repository.addClient(
                 Client(id = 0, name = name, phone = phone, note = note)
             )
+            loadClients()
+        }
+    }
+
+    private fun loadClients(){
+        viewModelScope.launch {
+            repository.getClients().collect { clientList ->
+                _clients.value = clientList
+            }
         }
     }
 }

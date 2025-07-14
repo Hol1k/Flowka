@@ -31,13 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.flowka.models.Client
 import com.example.flowka.viewmodels.clients.ClientViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 
 //region ClientListScreen
 
 @Composable
 fun ClientListScreen(
-    viewModel: ClientViewModel = viewModel(),
+    viewModel: ClientViewModel = koinViewModel(),
     onAddClick: () -> Unit = {}
 ) {
     val clients by viewModel.clients.collectAsState()
@@ -94,7 +94,7 @@ fun ClientCard(client: Client) {
 
 @Composable
 fun AddClientScreen(
-    viewModel: ClientViewModel = viewModel(),
+    viewModel: ClientViewModel = koinViewModel(),
     onClientAdded: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }

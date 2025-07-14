@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 class ClientDto (
     val id: Int,
     val name: String,
-    val phone: String,
+    val phoneNumber: String,
     val note: String
 )
 
@@ -15,7 +15,7 @@ fun ClientDto.toClient(): Client {
     return Client(
         id = this.id,
         name = this.name,
-        phone = this.phone,
+        phone = this.phoneNumber,
         note = this.note
     )
 }
@@ -24,7 +24,7 @@ fun Client.toDto(): ClientDto {
     return ClientDto(
         id = this.id,
         name = this.name,
-        phone = this.phone,
+        phoneNumber = this.phone,
         note = this.note
     )
 }

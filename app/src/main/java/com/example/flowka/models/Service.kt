@@ -8,5 +8,6 @@ data class Service (
     val note: String,
     val price: BigDecimal,
     val duration: Int,
-    val isComplete: Boolean
+    val isComplete: Boolean,
+    val clientId: Int
 )

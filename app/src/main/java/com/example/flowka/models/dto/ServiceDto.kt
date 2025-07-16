@@ -10,7 +10,8 @@ class ServiceDto (
     val note: String,
     val price: String,
     val duration: Int,
-    val isComplete: Boolean
+    val isComplete: Boolean,
+    val clientId: Int
 )
 
 fun ServiceDto.toService(): Service
@@ -21,7 +22,8 @@ fun ServiceDto.toService(): Service
         note = this.note,
         price = this.price.toBigDecimal(),
         duration = this.duration,
-        isComplete = this.isComplete
+        isComplete = this.isComplete,
+        clientId = this.clientId
     )
 }
 
@@ -33,6 +35,7 @@ fun Service.toDto(): ServiceDto
         note = this.note,
         price = this.price.toString(),
         duration = this.duration,
-        isComplete = this.isComplete
+        isComplete = this.isComplete,
+        clientId = this.clientId
     )
 }

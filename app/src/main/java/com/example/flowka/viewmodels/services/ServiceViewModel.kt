@@ -19,10 +19,10 @@ class ServiceViewModel(
         loadServices()
     }
 
-    fun addService(name: String, note: String, price: BigDecimal, duration: Int, isComplete: Boolean) {
+    fun addService(name: String, note: String, price: BigDecimal, duration: Int, isComplete: Boolean, clientId: Int) {
         viewModelScope.launch {
             repository.addService(
-                Service(id = 0, name = name, note = note, price = price, duration = duration, isComplete = isComplete)
+                Service(id = 0, name = name, note = note, price = price, duration = duration, isComplete = isComplete, clientId = clientId)
             )
             loadServices()
         }

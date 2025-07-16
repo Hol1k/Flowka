@@ -18,6 +18,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.flowka.models.Service
+import com.example.flowka.viewmodels.clients.ClientViewModel
 import com.example.flowka.viewmodels.services.ServiceViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -104,9 +109,11 @@ fun ServiceCard(
 
 //region EditServiceScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditServiceScreen(
     viewModel: ServiceViewModel = koinViewModel(),
+    clientViewModel: ClientViewModel = koinViewModel(),
     serviceId: Int,
     onServiceAdded: () -> Unit = {}
 ) {
@@ -139,6 +146,49 @@ fun EditServiceScreen(
             label = { Text("Название") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        val clients = clientViewModel.clients.collectAsState()
+        var expanded by remember { mutableStateOf(false) }
+        var selectedClientId by remember { mutableStateOf<Int?>(null) }
+
+        var selectedClientName = clients.value.find { it.id == selectedClientId }?.name ?: "Выберите клиента"
+
+        if (serviceId != -1) {
+            val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
+
+            if (service != null) {
+                selectedClientName = clients.value.find { it.id == service.clientId }?.name ?: "Выберите клиента"
+                selectedClientId = service.clientId
+            }
+        }
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                readOnly = true,
+                value = selectedClientName,
+                onValueChange = {},
+                label = { Text("Клиент") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                clients.value.forEach { client ->
+                    DropdownMenuItem(
+                        text = { Text(client.name) },
+                        onClick = {
+                            selectedClientId = client.id
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -216,11 +266,11 @@ fun EditServiceScreen(
 
         Button(
             onClick = {
-                viewModel.addService(name, note, price, duration, isComplete)
+                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1)
                 onServiceAdded()
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = serviceId == -1
+            enabled = serviceId == -1 && selectedClientId != null
         ) {
             Text("Сохранить")
         }

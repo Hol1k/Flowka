@@ -2,9 +2,11 @@ package com.example.flowka.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.flowka.subsystems.AddClientScreen
+import androidx.navigation.navArgument
+import com.example.flowka.subsystems.EditClientScreen
 import com.example.flowka.subsystems.ClientListScreen
 import com.example.flowka.viewmodels.clients.ClientViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -20,12 +22,26 @@ fun ClientNavGraph(navController: NavHostController) {
         composable("client_list") {
             ClientListScreen(
                 viewModel = viewModel,
-                onAddClick = { navController.navigate("add_client") }
+                onAddClick = { navController.navigate("edit_client") },
+                onEditClick = { clientId -> navController.navigate("edit_client/${clientId}") }
             )
         }
-        composable("add_client") {
-            AddClientScreen(
+        composable("edit_client") {
+            EditClientScreen(
                 viewModel = viewModel,
+                clientId = -1,
+                onClientAdded = { navController.popBackStack() }
+            )
+        }
+        composable(
+            "edit_client/{clientId}",
+            arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val clientId = backStackEntry.arguments?.getInt("clientId")
+
+            EditClientScreen(
+                viewModel = viewModel,
+                clientId = clientId ?: -1,
                 onClientAdded = { navController.popBackStack() }
             )
         }

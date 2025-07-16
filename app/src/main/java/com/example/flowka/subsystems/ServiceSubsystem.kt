@@ -1,5 +1,6 @@
 package com.example.flowka.subsystems
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ServiceListScreen(
     viewModel: ServiceViewModel = koinViewModel(),
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    onEditClick: (serviceId: Int) -> Unit = {}
 ) {
     val services by viewModel.services.collectAsState()
 
@@ -65,14 +67,13 @@ fun ServiceListScreen(
             ) {
                 Text("Пока тут нет ни одной услуги")
             }
-        }
-        else {
+        } else {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
             ) {
                 items(services) { service ->
-                    ServiceCard(service)
+                    ServiceCard(service, onEditClick)
                 }
             }
         }
@@ -80,10 +81,17 @@ fun ServiceListScreen(
 }
 
 @Composable
-fun ServiceCard(service: Service) {
-    Card(modifier = Modifier
-        .padding(8.dp)
-        .fillMaxWidth()
+fun ServiceCard(
+    service: Service,
+    onEditClick: (serviceId: Int) -> Unit = {}
+) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable(enabled = true) {
+                onEditClick(service.id)
+            }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = service.name, style = MaterialTheme.typography.titleLarge)
@@ -94,11 +102,12 @@ fun ServiceCard(service: Service) {
 
 //endregion
 
-//region AddServiceScreen
+//region EditServiceScreen
 
 @Composable
-fun AddServiceScreen(
+fun EditServiceScreen(
     viewModel: ServiceViewModel = koinViewModel(),
+    serviceId: Int,
     onServiceAdded: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }
@@ -106,6 +115,18 @@ fun AddServiceScreen(
     var price by remember { mutableStateOf(0.toBigDecimal()) }
     var duration by remember { mutableIntStateOf(0) }
     var isComplete by remember { mutableStateOf(false) }
+
+    if (serviceId != -1) {
+        val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
+
+        if (service != null) {
+            name = service.name
+            note = service.note
+            price = service.price
+            duration = service.duration
+            isComplete = service.isComplete
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -198,7 +219,8 @@ fun AddServiceScreen(
                 viewModel.addService(name, note, price, duration, isComplete)
                 onServiceAdded()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = serviceId == -1
         ) {
             Text("Сохранить")
         }

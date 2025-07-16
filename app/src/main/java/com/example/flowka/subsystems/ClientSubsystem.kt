@@ -1,5 +1,6 @@
 package com.example.flowka.subsystems
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +39,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ClientListScreen(
     viewModel: ClientViewModel = koinViewModel(),
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    onEditClick: (clientId: Int) -> Unit = {}
 ) {
     val clients by viewModel.clients.collectAsState()
 
@@ -67,7 +69,7 @@ fun ClientListScreen(
                     .padding(padding)
             ) {
                 items(clients) { client ->
-                    ClientCard(client)
+                    ClientCard(client, onEditClick)
                 }
             }
         }
@@ -75,10 +77,16 @@ fun ClientListScreen(
 }
 
 @Composable
-fun ClientCard(client: Client) {
+fun ClientCard(
+    client: Client,
+    onEditClick: (clientId: Int) -> Unit = {}
+) {
     Card(modifier = Modifier
         .padding(8.dp)
         .fillMaxWidth()
+        .clickable(enabled = true) {
+            onEditClick(client.id)
+        }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = client.name, style = MaterialTheme.typography.titleLarge)
@@ -90,16 +98,27 @@ fun ClientCard(client: Client) {
 
 //endregion
 
-//region AddClientScreen
+//region EditClientScreen
 
 @Composable
-fun AddClientScreen(
+fun EditClientScreen(
     viewModel: ClientViewModel = koinViewModel(),
+    clientId: Int,
     onClientAdded: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+
+    if (clientId != -1) {
+        val client = viewModel.clients.collectAsState().value.find { it.id == clientId }
+
+        if (client != null) {
+            name = client.name
+            phoneNumber = client.phone
+            note = client.note
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -135,9 +154,10 @@ fun AddClientScreen(
                 viewModel.addClient(name, phoneNumber, note)
                 onClientAdded()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = clientId == -1
         ) {
-            Text("Сохранить")
+            Text("Сохранит${clientId}")
         }
     }
 }

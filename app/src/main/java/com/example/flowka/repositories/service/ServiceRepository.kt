@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ServiceRepository {
     fun getServices(): Flow<List<Service>>
-    fun addService(service: Service)
+    suspend fun addService(service: Service)
 }

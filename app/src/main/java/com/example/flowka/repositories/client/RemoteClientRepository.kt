@@ -3,7 +3,7 @@ package com.example.flowka.repositories.client
 import com.example.flowka.models.Client
 import com.example.flowka.models.dto.toClient
 import com.example.flowka.models.dto.toDto
-import com.example.flowka.repositories.client.remote.FlowkaApi
+import com.example.flowka.repositories.remote.FlowkaApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

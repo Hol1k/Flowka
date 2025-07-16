@@ -1,6 +1,6 @@
 package com.example.flowka.di
 
-import com.example.flowka.repositories.client.remote.FlowkaApi
+import com.example.flowka.repositories.remote.FlowkaApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json

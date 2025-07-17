@@ -157,7 +157,7 @@ fun EditClientScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = clientId == -1
         ) {
-            Text("Сохранит")
+            Text("Сохранить")
         }
     }
 }

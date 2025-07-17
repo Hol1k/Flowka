@@ -3,6 +3,8 @@ package com.example.flowka.viewmodels.services
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flowka.models.Service
+import com.example.flowka.models.Tool
+import com.example.flowka.models.dto.MaterialOperationDto
 import com.example.flowka.repositories.service.ServiceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -19,10 +21,20 @@ class ServiceViewModel(
         loadServices()
     }
 
-    fun addService(name: String, note: String, price: BigDecimal, duration: Int, isComplete: Boolean, clientId: Int) {
+    fun addService(name: String, note: String, price: BigDecimal, duration: Int, isComplete: Boolean,
+                   clientId: Int, materialOperations: List<MaterialOperationDto>, tools: List<Tool>) {
         viewModelScope.launch {
             repository.addService(
-                Service(id = 0, name = name, note = note, price = price, duration = duration, isComplete = isComplete, clientId = clientId)
+                Service(
+                    id = 0,
+                    name = name,
+                    note = note,
+                    price = price,
+                    duration = duration,
+                    isComplete = isComplete,
+                    clientId = clientId,
+                    materialOperations = materialOperations,
+                    tools = tools)
             )
             loadServices()
         }

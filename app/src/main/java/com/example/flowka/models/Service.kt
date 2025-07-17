@@ -1,5 +1,6 @@
 package com.example.flowka.models
 
+import com.example.flowka.models.dto.MaterialOperationDto
 import java.math.BigDecimal
 
 data class Service (
@@ -9,5 +10,7 @@ data class Service (
     val price: BigDecimal,
     val duration: Int,
     val isComplete: Boolean,
-    val clientId: Int
+    val clientId: Int,
+    val materialOperations: List<MaterialOperationDto>,
+    val tools: List<Tool>
 )

@@ -266,7 +266,7 @@ fun EditServiceScreen(
 
         Button(
             onClick = {
-                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1)
+                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1, emptyList(), emptyList())
                 onServiceAdded()
             },
             modifier = Modifier.fillMaxWidth(),

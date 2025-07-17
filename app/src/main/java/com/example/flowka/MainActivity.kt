@@ -33,15 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.navigation.compose.rememberNavController
-import com.example.flowka.di.networkModule
-import com.example.flowka.di.repositoryModule
-import com.example.flowka.di.viewModelModule
-import com.example.flowka.navigation.ClientNavGraph
-import com.example.flowka.navigation.ServiceNavGraph
+import com.example.flowka.di.*
+import com.example.flowka.navigation.*
 import com.example.flowka.subsystems.FinanceScreen
-import com.example.flowka.subsystems.MaterialsScreen
-import com.example.flowka.subsystems.ToolsScreen
 import com.example.flowka.ui.theme.FlowkaTheme
+import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -51,6 +47,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        AndroidThreeTen.init(this)
 
         startKoin {
             androidContext(this@MainActivity)
@@ -170,8 +168,12 @@ class MainActivity : ComponentActivity() {
                                 "Клиенты" -> {
                                     ClientNavGraph(navController)
                                 }
-                                "Материалы" -> MaterialsScreen()
-                                "Инструменты" -> ToolsScreen()
+                                "Материалы" -> {
+                                    MaterialNavGraph(navController)
+                                }
+                                "Инструменты" -> {
+                                    ToolNavGraph(navController)
+                                }
                                 "Финансы" -> FinanceScreen()
                             }
                         }

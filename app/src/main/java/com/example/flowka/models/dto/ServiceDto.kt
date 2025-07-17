@@ -1,6 +1,7 @@
 package com.example.flowka.models.dto
 
 import com.example.flowka.models.Service
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +12,11 @@ class ServiceDto (
     val price: String,
     val duration: Int,
     val isComplete: Boolean,
-    val clientId: Int
+    val clientId: Int,
+    @SerialName("materialOperations")
+    val materialOperationDtos: List<MaterialOperationDto> = emptyList(),
+    @SerialName("tools")
+    val toolDtos: List<ToolDto> = emptyList()
 )
 
 fun ServiceDto.toService(): Service
@@ -23,7 +28,9 @@ fun ServiceDto.toService(): Service
         price = this.price.toBigDecimal(),
         duration = this.duration,
         isComplete = this.isComplete,
-        clientId = this.clientId
+        clientId = this.clientId,
+        materialOperations = this.materialOperationDtos,
+        tools = this.toolDtos.map { it.toTool() }
     )
 }
 
@@ -36,6 +43,8 @@ fun Service.toDto(): ServiceDto
         price = this.price.toString(),
         duration = this.duration,
         isComplete = this.isComplete,
-        clientId = this.clientId
+        clientId = this.clientId,
+        materialOperationDtos = this.materialOperations,
+        toolDtos = this.tools.map { it.toDto() }
     )
 }

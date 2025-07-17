@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeServiceRepository : ServiceRepository {
     private val services = MutableStateFlow(
         listOf(
-            Service(1, "Услуга1", "коммент", 0.toBigDecimal(), 30, false, 1),
-            Service(2, "Услуга2", "комменткомменткомменткомменткомменткомменткоммент", 0.toBigDecimal(), 30, false, 2),
-            Service(3, "Услуга3", "коммент", 0.toBigDecimal(), 30, false, 3)
+            Service(1, "Услуга1", "коммент", 0.toBigDecimal(), 30, false, 1, emptyList(), emptyList()),
+            Service(2, "Услуга2", "комменткомменткомменткомменткомменткомменткоммент", 0.toBigDecimal(), 30, false, 2, emptyList(), emptyList()),
+            Service(3, "Услуга3", "коммент", 0.toBigDecimal(), 30, false, 3, emptyList(), emptyList())
         )
     )
 

@@ -8,6 +8,7 @@ import com.example.flowka.models.dto.MaterialOperationDto
 import com.example.flowka.repositories.service.ServiceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 
 class ServiceViewModel(
@@ -37,6 +38,7 @@ class ServiceViewModel(
                     tools = tools)
             )
             loadServices()
+
         }
     }
 

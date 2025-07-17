@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +33,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,8 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.flowka.models.Service
+import com.example.flowka.models.dto.MaterialOperationDto
 import com.example.flowka.viewmodels.clients.ClientViewModel
+import com.example.flowka.viewmodels.materials.MaterialViewModel
 import com.example.flowka.viewmodels.services.ServiceViewModel
+import com.example.flowka.viewmodels.tools.ToolViewModel
 import org.koin.androidx.compose.koinViewModel
 
 //region ServiceListScreen
@@ -114,6 +120,8 @@ fun ServiceCard(
 fun EditServiceScreen(
     viewModel: ServiceViewModel = koinViewModel(),
     clientViewModel: ClientViewModel = koinViewModel(),
+    toolViewModel: ToolViewModel = koinViewModel(),
+    materialViewModel: MaterialViewModel = koinViewModel(),
     serviceId: Int,
     onServiceAdded: () -> Unit = {}
 ) {
@@ -243,6 +251,64 @@ fun EditServiceScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        val allTools = toolViewModel.tools.collectAsState().value
+        val selectedToolIds = remember { mutableStateListOf<Int>() }
+
+        if (serviceId != -1) {
+            val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
+            if (service != null) {
+                selectedToolIds.clear()
+                selectedToolIds.addAll(service.tools.map { it.id })
+            }
+        }
+
+        Text("Инструменты", style = MaterialTheme.typography.titleMedium)
+        LazyColumn {
+            items(allTools) { tool ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = selectedToolIds.contains(tool.id),
+                        onCheckedChange = { isChecked ->
+                            if (isChecked) selectedToolIds.add(tool.id)
+                            else selectedToolIds.remove(tool.id)
+                        }
+                    )
+                    Text(tool.name)
+                }
+            }
+        }
+
+        val allMaterials = materialViewModel.materials.collectAsState().value
+        val materialCounts = remember { mutableStateMapOf<String, Int>() }
+
+        Text("Материалы", style = MaterialTheme.typography.titleMedium)
+        LazyColumn {
+            items(allMaterials) { material ->
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Checkbox(
+                        checked = materialCounts.containsKey(material.name),
+                        onCheckedChange = { isChecked ->
+                            if (isChecked) materialCounts[material.name] = 1
+                            else materialCounts.remove(material.name)
+                        }
+                    )
+                    Text(material.name, modifier = Modifier.weight(1f))
+                    if (materialCounts.containsKey(material.name)) {
+                        OutlinedTextField(
+                            value = materialCounts[material.name]?.toString() ?: "",
+                            onValueChange = {
+                                val sanitized = it.filter { c -> c.isDigit() }
+                                materialCounts[material.name] = sanitized.toIntOrNull() ?: 1
+                            },
+                            label = { Text("Кол-во") },
+                            modifier = Modifier.width(100.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                    }
+                }
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -266,7 +332,15 @@ fun EditServiceScreen(
 
         Button(
             onClick = {
-                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1, emptyList(), emptyList())
+                val selectedTools = allTools.filter { selectedToolIds.contains(it.id) }
+
+                val selectedMaterials = allMaterials.mapNotNull { mat ->
+                    materialCounts[mat.name]?.let { count ->
+                        MaterialOperationDto(id = 0, materialName = mat.name, quantity = -count, serviceId = serviceId)
+                    }
+                }
+
+                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1, selectedMaterials, selectedTools)
                 onServiceAdded()
             },
             modifier = Modifier.fillMaxWidth(),

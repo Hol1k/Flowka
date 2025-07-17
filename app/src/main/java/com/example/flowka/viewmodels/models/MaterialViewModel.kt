@@ -29,7 +29,7 @@ class MaterialViewModel(
         }
     }
 
-    private fun loadMaterials(){
+    public fun loadMaterials(){
         viewModelScope.launch {
             repository.getMaterials().collect { materialList ->
                 _materials.value = materialList

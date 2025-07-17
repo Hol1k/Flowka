@@ -14,6 +14,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MaterialNavGraph(navController: NavHostController) {
     val viewModel: MaterialViewModel = koinViewModel()
+    viewModel.loadMaterials()
 
     NavHost(
         navController = navController,

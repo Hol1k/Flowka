@@ -125,21 +125,6 @@ class MainActivity : ComponentActivity() {
                                     scope.launch { drawerState.close() }
                                 }
                             )
-                            NavigationDrawerItem(
-                                icon = {
-                                    Icon(
-                                        Icons.Default.Star,
-                                        contentDescription = "Финансы"
-                                    )
-                                },
-                                shape = RectangleShape,
-                                label = { Text("Финансы") },
-                                selected = currentScreen == "Финансы",
-                                onClick = {
-                                    currentScreen = "Финансы"
-                                    scope.launch { drawerState.close() }
-                                }
-                            )
                         }
                     }
                 ) {
@@ -174,7 +159,6 @@ class MainActivity : ComponentActivity() {
                                 "Инструменты" -> {
                                     ToolNavGraph(navController)
                                 }
-                                "Финансы" -> FinanceScreen()
                             }
                         }
                     }

@@ -143,210 +143,243 @@ fun EditServiceScreen(
         }
     }
 
-    Column(
+    val clients = clientViewModel.clients.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedClientId by remember { mutableStateOf<Int?>(null) }
+
+    var selectedClientName =
+        clients.value.find { it.id == selectedClientId }?.name ?: "Выберите клиента"
+
+    if (serviceId != -1) {
+        val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
+
+        if (service != null) {
+            selectedClientName =
+                clients.value.find { it.id == service.clientId }?.name ?: "Выберите клиента"
+            selectedClientId = service.clientId
+        }
+    }
+
+    val allTools = toolViewModel.tools.collectAsState().value
+    val selectedToolIds = remember { mutableStateListOf<Int>() }
+
+    if (serviceId != -1) {
+        val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
+        if (service != null) {
+            selectedToolIds.clear()
+            selectedToolIds.addAll(service.tools.map { it.id })
+        }
+    }
+
+    val allMaterials = materialViewModel.materials.collectAsState().value
+    val materialCounts = remember { mutableStateMapOf<String, Int>() }
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Название") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val clients = clientViewModel.clients.collectAsState()
-        var expanded by remember { mutableStateOf(false) }
-        var selectedClientId by remember { mutableStateOf<Int?>(null) }
-
-        var selectedClientName = clients.value.find { it.id == selectedClientId }?.name ?: "Выберите клиента"
-
-        if (serviceId != -1) {
-            val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
-
-            if (service != null) {
-                selectedClientName = clients.value.find { it.id == service.clientId }?.name ?: "Выберите клиента"
-                selectedClientId = service.clientId
-            }
-        }
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
+        item {
             OutlinedTextField(
-                readOnly = true,
-                value = selectedClientName,
-                onValueChange = {},
-                label = { Text("Клиент") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Название") },
+                modifier = Modifier.fillMaxWidth()
             )
-            ExposedDropdownMenu(
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        item {
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded }
             ) {
-                clients.value.forEach { client ->
-                    DropdownMenuItem(
-                        text = { Text(client.name) },
-                        onClick = {
-                            selectedClientId = client.id
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = note,
-            onValueChange = { note = it },
-            label = { Text("Заметка") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value =
-                if (price.compareTo(0.toBigDecimal()) == 0)
-                    ""
-                else
-                    price.toString()
-            ,
-            onValueChange = {
-                price = if (it.isEmpty())
-                    0.toBigDecimal()
-                else
-                    it.toBigDecimal()
-                            },
-            label = { Text("Цена") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            )
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value =
-                if (duration == 0)
-                    ""
-                else
-                    duration.toString()
-            ,
-            onValueChange = {
-                val value = it.replace(Regex("[^0-9]"), "")
-
-                duration = if (value.isEmpty())
-                    0
-                else
-                    value.toInt()
-            },
-            label = { Text("Длительность (минут)") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            )
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val allTools = toolViewModel.tools.collectAsState().value
-        val selectedToolIds = remember { mutableStateListOf<Int>() }
-
-        if (serviceId != -1) {
-            val service = viewModel.services.collectAsState().value.find { it.id == serviceId }
-            if (service != null) {
-                selectedToolIds.clear()
-                selectedToolIds.addAll(service.tools.map { it.id })
-            }
-        }
-
-        Text("Инструменты", style = MaterialTheme.typography.titleMedium)
-        LazyColumn {
-            items(allTools) { tool ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = selectedToolIds.contains(tool.id),
-                        onCheckedChange = { isChecked ->
-                            if (isChecked) selectedToolIds.add(tool.id)
-                            else selectedToolIds.remove(tool.id)
-                        }
-                    )
-                    Text(tool.name)
-                }
-            }
-        }
-
-        val allMaterials = materialViewModel.materials.collectAsState().value
-        val materialCounts = remember { mutableStateMapOf<String, Int>() }
-
-        Text("Материалы", style = MaterialTheme.typography.titleMedium)
-        LazyColumn {
-            items(allMaterials) { material ->
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Checkbox(
-                        checked = materialCounts.containsKey(material.name),
-                        onCheckedChange = { isChecked ->
-                            if (isChecked) materialCounts[material.name] = 1
-                            else materialCounts.remove(material.name)
-                        }
-                    )
-                    Text(material.name, modifier = Modifier.weight(1f))
-                    if (materialCounts.containsKey(material.name)) {
-                        OutlinedTextField(
-                            value = materialCounts[material.name]?.toString() ?: "",
-                            onValueChange = {
-                                val sanitized = it.filter { c -> c.isDigit() }
-                                materialCounts[material.name] = sanitized.toIntOrNull() ?: 1
-                            },
-                            label = { Text("Кол-во") },
-                            modifier = Modifier.width(100.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                OutlinedTextField(
+                    readOnly = true,
+                    value = selectedClientName,
+                    onValueChange = {},
+                    label = { Text("Клиент") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    clients.value.forEach { client ->
+                        DropdownMenuItem(
+                            text = { Text(client.name) },
+                            onClick = {
+                                selectedClientId = client.id
+                                expanded = false
+                            }
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentAlignment = Alignment.CenterEnd
-        )
-        {
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Выполнена")
-                Checkbox(
-                    checked =
-                        isComplete,
-                    onCheckedChange = {
-                        isComplete = it
-                    },
+        item {
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = { Text("Заметка") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            OutlinedTextField(
+                value =
+                    if (price.compareTo(0.toBigDecimal()) == 0)
+                        ""
+                    else
+                        price.toString(),
+                onValueChange = {
+                    price = if (it.isEmpty())
+                        0.toBigDecimal()
+                    else
+                        it.toBigDecimal()
+                },
+                label = { Text("Цена") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
                 )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            OutlinedTextField(
+                value =
+                    if (duration == 0)
+                        ""
+                    else
+                        duration.toString(),
+                onValueChange = {
+                    val value = it.replace(Regex("[^0-9]"), "")
+
+                    duration = if (value.isEmpty())
+                        0
+                    else
+                        value.toInt()
+                },
+                label = { Text("Длительность (минут)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            Text("Инструменты", style = MaterialTheme.typography.titleMedium)
+        }
+        items(allTools) { tool ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = selectedToolIds.contains(tool.id),
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) selectedToolIds.add(tool.id)
+                        else selectedToolIds.remove(tool.id)
+                    }
+                )
+                Text(tool.name)
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = {
-                val selectedTools = allTools.filter { selectedToolIds.contains(it.id) }
-
-                val selectedMaterials = allMaterials.mapNotNull { mat ->
-                    materialCounts[mat.name]?.let { count ->
-                        MaterialOperationDto(id = 0, materialName = mat.name, quantity = -count, serviceId = serviceId)
+        item {
+            Text("Материалы", style = MaterialTheme.typography.titleMedium)
+        }
+        items(allMaterials) { material ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Checkbox(
+                    checked = materialCounts.containsKey(material.name),
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) materialCounts[material.name] = 1
+                        else materialCounts.remove(material.name)
                     }
+                )
+                Text(material.name, modifier = Modifier.weight(1f))
+                if (materialCounts.containsKey(material.name)) {
+                    OutlinedTextField(
+                        value = materialCounts[material.name]?.toString() ?: "",
+                        onValueChange = {
+                            val sanitized = it.filter { c -> c.isDigit() }
+                            materialCounts[material.name] = sanitized.toIntOrNull() ?: 1
+                        },
+                        label = { Text("Кол-во") },
+                        modifier = Modifier.width(100.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
                 }
+            }
+        }
 
-                viewModel.addService(name, note, price, duration, isComplete, selectedClientId ?: -1, selectedMaterials, selectedTools)
-                onServiceAdded()
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = serviceId == -1 && selectedClientId != null
-        ) {
-            Text("Сохранить")
+
+
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            )
+            {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Выполнена")
+                    Checkbox(
+                        checked =
+                            isComplete,
+                        onCheckedChange = {
+                            isComplete = it
+                        },
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            Button(
+                onClick = {
+                    val selectedTools = allTools.filter { selectedToolIds.contains(it.id) }
+
+                    val selectedMaterials = allMaterials.mapNotNull { mat ->
+                        materialCounts[mat.name]?.let { count ->
+                            MaterialOperationDto(
+                                id = 0,
+                                materialName = mat.name,
+                                quantity = -count,
+                                serviceId = serviceId
+                            )
+                        }
+                    }
+
+                    viewModel.addService(
+                        name,
+                        note,
+                        price,
+                        duration,
+                        isComplete,
+                        selectedClientId ?: -1,
+                        selectedMaterials,
+                        selectedTools
+                    )
+                    onServiceAdded()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = serviceId == -1 && selectedClientId != null
+            ) {
+                Text("Сохранить")
+            }
         }
     }
 }
